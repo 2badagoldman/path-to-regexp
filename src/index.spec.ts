@@ -140,7 +140,23 @@ describe("path-to-regexp", () => {
 
       expect(() => {
         toPath({ foo: [] });
-      }).toThrow(new TypeError('Expected "foo" to be a string'));
+      }).toThrow(new TypeError('Expected "foo" to be a non-empty string'));
+    });
+
+    it("should throw when param gets an empty string", () => {
+      const toPath = compile("/:test");
+
+      expect(() => {
+        toPath({ test: "" });
+      }).toThrow(new TypeError('Expected "test" to be a non-empty string'));
+    });
+
+    it("should throw when param gets an empty string without encoding", () => {
+      const toPath = compile("/:test", { encode: false });
+
+      expect(() => {
+        toPath({ test: "" });
+      }).toThrow(new TypeError('Expected "test" to be a non-empty string'));
     });
 
     it("should throw when a wildcard is not an array", () => {
