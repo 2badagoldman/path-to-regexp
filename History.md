@@ -1,3 +1,7 @@
+# Unreleased
+
+- Name the missing parameter(s) and path in `compile()` errors, e.g. `Missing parameter "id" for path "/users/:id"` (or `Missing parameters "a", "b" for path "..."`), replacing `Missing parameters: a, b`. Applies to required wildcards too; optional groups are unaffected.
+
 # Moved to [GitHub Releases](https://github.com/pillarjs/path-to-regexp/releases)
 
 ## 3.0.0 / 2019-01-13

@@ -124,7 +124,65 @@ describe("path-to-regexp", () => {
 
       expect(() => {
         toPath();
-      }).toThrow(new TypeError("Missing parameters: b"));
+      }).toThrow(new TypeError('Missing parameter "b" for path "/a/:b/c"'));
+    });
+
+    it("should name the missing required param and path", () => {
+      expect(() => compile("/users/:id")({})).toThrow(
+        new TypeError('Missing parameter "id" for path "/users/:id"'),
+      );
+    });
+
+    it("should name a missing required wildcard", () => {
+      expect(() => compile("/files/*path")({})).toThrow(
+        new TypeError('Missing parameter "path" for path "/files/*path"'),
+      );
+    });
+
+    it("should name all missing params when several are missing", () => {
+      expect(() => compile("/:a/:b/:c")({ b: "x" })).toThrow(
+        new TypeError('Missing parameters "a", "c" for path "/:a/:b/:c"'),
+      );
+    });
+
+    it("should not throw for a missing optional param in a group", () => {
+      expect(compile("/users{/:id}")({})).toBe("/users");
+    });
+
+    it("should not throw for a missing optional wildcard in a group", () => {
+      expect(compile("/files{/*path}")({})).toBe("/files");
+    });
+
+    it("should still compile a supplied wildcard array", () => {
+      expect(compile("/files/*path")({ path: ["a", "b"] })).toBe("/files/a/b");
+    });
+
+    it("should handle undefined params, mixed param/wildcard and quoted names", () => {
+      expect(() => compile("/users/:id")()).toThrow(
+        new TypeError('Missing parameter "id" for path "/users/:id"'),
+      );
+      expect(() => compile("/:a/:b/*c")({ b: "x" })).toThrow(
+        new TypeError('Missing parameters "a", "c" for path "/:a/:b/*c"'),
+      );
+      expect(() => compile('/:"my id"')({})).toThrow(
+        new TypeError('Missing parameter "my id" for path "/:"my id""'),
+      );
+      expect(() => compile("/:a{/:b}")({})).toThrow(
+        new TypeError('Missing parameter "a" for path "/:a{/:b}"'),
+      );
+      expect(compile("/users{/:id}")({ id: "1" })).toBe("/users/1");
+      expect(compile("/files{/*path}")({ path: ["a", "b"] })).toBe(
+        "/files/a/b",
+      );
+    });
+
+    it("should report the stringified path for TokenData input", () => {
+      const data = parse("/users/:id/:tab");
+      expect(() => compile(data)({})).toThrow(
+        new TypeError(
+          'Missing parameters "id", "tab" for path "/users/:id/:tab"',
+        ),
+      );
     });
 
     it("should throw when expecting a repeated value", () => {
