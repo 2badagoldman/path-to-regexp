@@ -274,15 +274,18 @@ export function compile<P extends ParamData = ParamData>(
   const data = typeof path === "object" ? path : parse(path, options);
   const fn = tokensToFunction(data.tokens, delimiter, encode);
 
-  return function path(params: P = {} as P) {
+  return function (params: P = {} as P) {
     const missing: string[] = [];
-    const path = fn(params, missing);
+    const result = fn(params, missing);
 
     if (missing.length) {
-      throw new TypeError(`Missing parameters: ${missing.join(", ")}`);
+      const names = missing.map((name) => `"${name}"`).join(", ");
+      const source = typeof path === "string" ? path : stringify(data);
+      const label = missing.length === 1 ? "parameter" : "parameters";
+      throw new TypeError(`Missing ${label} ${names} for path "${source}"`);
     }
 
-    return path;
+    return result;
   };
 }
 
